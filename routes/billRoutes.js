@@ -4,14 +4,14 @@ const router = express.Router();
 const { generatePDF } = require("../services/pdfService");
 const { sendWhatsApp } = require("../services/whatsappService");
 
-// 🔥 TEMP DATABASE (you can upgrade later)
+// 🔥 TEMP DATABASE
 let bills = [];
 
 // ================= TROLLEY TRACKING =================
 let trolleys = {};
 
 /* =========================
-   CREATE BILL
+   CREATE BILL (FINAL)
 ========================= */
 router.post("/create-bill", async (req, res) => {
   try {
@@ -23,13 +23,16 @@ router.post("/create-bill", async (req, res) => {
       items
     };
 
+    // ✅ SAVE BILL
     bills.push(bill);
 
-    // 🔥 GENERATE PDF HERE
+    console.log("Saved Bills:", bills);
+
+    // ✅ GENERATE PDF
     const filePath = await generatePDF(bill);
     console.log("PDF Generated:", filePath);
 
-    // 🔥 LIVE UPDATE
+    // ✅ LIVE UPDATE
     req.app.get("io").emit("new-bill", bill);
 
     res.json({
@@ -58,7 +61,6 @@ router.get("/bill/:id", (req, res) => {
   res.json(bill);
 });
 
-
 /* =========================
    GET ALL BILLS (ADMIN)
 ========================= */
@@ -66,9 +68,8 @@ router.get("/bills", (req, res) => {
   res.json(bills);
 });
 
-
 /* =========================
-   SEND WHATSAPP BILL (PDF)
+   SEND WHATSAPP BILL
 ========================= */
 router.post("/send-whatsapp", async (req, res) => {
   try {
@@ -80,16 +81,16 @@ router.post("/send-whatsapp", async (req, res) => {
       return res.status(404).json({ error: "Bill not found" });
     }
 
-    // 🔥 attach customer name
+    // ✅ attach customer name
     bill.customerName = name;
 
-    // Generate PDF
+    // ✅ generate fresh PDF with name
     const filePath = await generatePDF(bill);
 
     const path = require("path");
     const fileName = path.basename(filePath);
 
-    // Send WhatsApp
+    // ✅ send WhatsApp
     await sendWhatsApp(phone, fileName);
 
     res.json({ success: true });
@@ -99,7 +100,10 @@ router.post("/send-whatsapp", async (req, res) => {
     res.status(500).json({ error: "Failed to send WhatsApp" });
   }
 });
-// ================= TROLLEY UPDATE =================
+
+/* =========================
+   TROLLEY UPDATE
+========================= */
 router.get("/trolley-update", (req, res) => {
   const { trolleyId } = req.query;
 
@@ -112,10 +116,11 @@ router.get("/trolley-update", (req, res) => {
   res.send("Trolley Updated");
 });
 
-// ================= GET TROLLEYS =================
+/* =========================
+   GET TROLLEYS
+========================= */
 router.get("/trolleys", (req, res) => {
   res.json(trolleys);
 });
-
 
 module.exports = router;

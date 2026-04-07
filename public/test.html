@@ -9,13 +9,10 @@
 <p id="result"></p>
 
 <script>
-function createBill(){
-
+function createBill() {
   fetch("/api/create-bill", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       items: [
         { name: "Milk", qty: 1, price: 45 },
@@ -26,11 +23,11 @@ function createBill(){
   .then(res => res.json())
   .then(data => {
     document.getElementById("result").innerText =
-      "Bill Created: " + data.url;
+      "Bill Created: " + data.billId;
 
-    window.open(data.url); // auto open bill page
+    // 🔥 AUTO OPEN BILL PAGE
+    window.location.href = data.url;
   });
-
 }
 </script>
 
