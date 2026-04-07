@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <title>Test Create Bill</title>
+</head>
 <body>
 
-<h2>Test Create Bill</h2>
+<h1>Test Create Bill</h1>
 
 <button onclick="createBill()">Create Bill</button>
 
@@ -10,9 +13,12 @@
 
 <script>
 function createBill() {
+
   fetch("/api/create-bill", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
       items: [
         { name: "Milk", qty: 1, price: 45 },
@@ -22,11 +28,25 @@ function createBill() {
   })
   .then(res => res.json())
   .then(data => {
+
+    console.log("RESPONSE:", data);
+
+    if (!data.success) {
+      document.getElementById("result").innerText = "Error!";
+      return;
+    }
+
+    // ✅ FIX HERE
     document.getElementById("result").innerText =
       "Bill Created: " + data.billId;
 
     // 🔥 AUTO OPEN BILL PAGE
     window.location.href = data.url;
+
+  })
+  .catch(err => {
+    console.log(err);
+    document.getElementById("result").innerText = "Failed!";
   });
 }
 </script>
