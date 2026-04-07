@@ -9,6 +9,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+const fs = require("fs");
+const path = require("path");
+
+const billsDir = path.join(__dirname, "bills");
+
+if (!fs.existsSync(billsDir)) {
+  fs.mkdirSync(billsDir);
+}
+
 // ================= MIDDLEWARE =================
 app.use(express.json());
 
